@@ -1,4 +1,4 @@
-<?php
+<?hh
 
 /*
  * This file is part of Pimple.
@@ -36,9 +36,14 @@ use Pimple;
  */
 class PimpleTest extends \PHPUnit_Framework_TestCase
 {
+    private function createPimpleInstance()
+    {
+        return new Pimple<string, mixed>();
+    }
+
     public function testWithString()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['param'] = 'value';
 
         $this->assertEquals('value', $pimple['param']);
@@ -46,7 +51,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
 
     public function testWithClosure()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['service'] = function () {
             return new Service();
         };
@@ -56,7 +61,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
 
     public function testServicesShouldBeDifferent()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['service'] = $pimple->factory(function () {
             return new Service();
         });
@@ -72,7 +77,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
 
     public function testShouldPassContainerAsParameter()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['service'] = function () {
             return new Service();
         };
@@ -86,7 +91,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
 
     public function testIsset()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['param'] = 'value';
         $pimple['service'] = function () {
             return new Service();
@@ -114,20 +119,20 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetGetValidatesKeyIsPresent()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         echo $pimple['foo'];
     }
 
     public function testOffsetGetHonorsNullValues()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['foo'] = null;
         $this->assertNull($pimple['foo']);
     }
 
     public function testUnset()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['param'] = 'value';
         $pimple['service'] = function () {
             return new Service();
@@ -143,7 +148,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
      */
     public function testShare($service)
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['shared_service'] = $service;
 
         $serviceOne = $pimple['shared_service'];
@@ -160,7 +165,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
      */
     public function testProtect($service)
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['protected'] = $pimple->protect($service);
 
         $this->assertSame($service, $pimple['protected']);
@@ -168,21 +173,21 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
 
     public function testGlobalFunctionNameAsParameterValue()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['global_function'] = 'strlen';
         $this->assertSame('strlen', $pimple['global_function']);
     }
 
     public function testRaw()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['service'] = $definition = $pimple->factory(function () { return 'foo'; });
         $this->assertSame($definition, $pimple->raw('service'));
     }
 
     public function testRawHonorsNullValues()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['foo'] = null;
         $this->assertNull($pimple->raw('foo'));
     }
@@ -193,7 +198,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
      */
     public function testRawValidatesKeyIsPresent()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple->raw('foo');
     }
 
@@ -202,7 +207,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
      */
     public function testExtend($service)
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['shared_service'] = function () {
             return new Service();
         };
@@ -229,7 +234,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
 
     public function testExtendDoesNotLeakWithFactories()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
 
         $pimple['foo'] = $pimple->factory(function () { return; });
         $pimple['foo'] = $pimple->extend('foo', function ($foo, $pimple) { return; });
@@ -250,13 +255,13 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
      */
     public function testExtendValidatesKeyIsPresent()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple->extend('foo', function () {});
     }
 
     public function testKeys()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['foo'] = 123;
         $pimple['bar'] = 123;
 
@@ -266,7 +271,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function settingAnInvokableObjectShouldTreatItAsFactory()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['invokable'] = new Invokable();
 
         $this->assertInstanceOf('Pimple\Tests\Service', $pimple['invokable']);
@@ -275,7 +280,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function settingNonInvokableObjectShouldTreatItAsParameter()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['non_invokable'] = new NonInvokable();
 
         $this->assertInstanceOf('Pimple\Tests\NonInvokable', $pimple['non_invokable']);
@@ -283,23 +288,21 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider badServiceDefinitionProvider
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Service definition is not a Closure or invokable object.
+     * @expectedException Exception
      */
     public function testFactoryFailsForInvalidServiceDefinitions($service)
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple->factory($service);
     }
 
     /**
      * @dataProvider badServiceDefinitionProvider
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Callable is not a Closure or invokable object.
+     * @expectedException Exception
      */
     public function testProtectFailsForInvalidServiceDefinitions($service)
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple->protect($service);
     }
 
@@ -310,19 +313,18 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
      */
     public function testExtendFailsForKeysNotContainingServiceDefinitions($service)
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['foo'] = $service;
         $pimple->extend('foo', function () {});
     }
 
     /**
      * @dataProvider badServiceDefinitionProvider
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Extension service definition is not a Closure or invokable object.
+     * @expectedException Exception
      */
     public function testExtendFailsForInvalidServiceDefinitions($service)
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['foo'] = function () {};
         $pimple->extend('foo', $service);
     }
@@ -356,7 +358,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
 
     public function testDefiningNewServiceAfterFreeze()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['foo'] = function () {
             return 'foo';
         };
@@ -374,7 +376,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
      */
     public function testOverridingServiceAfterFreeze()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['foo'] = function () {
             return 'foo';
         };
@@ -387,7 +389,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
 
     public function testRemovingServiceAfterFreeze()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['foo'] = function () {
             return 'foo';
         };
@@ -402,7 +404,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
 
     public function testExtendingService()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['foo'] = function () {
             return 'foo';
         };
@@ -417,7 +419,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
 
     public function testExtendingServiceAfterOtherServiceFreeze()
     {
-        $pimple = new Pimple();
+        $pimple = $this->createPimpleInstance();
         $pimple['foo'] = function () {
             return 'foo';
         };
